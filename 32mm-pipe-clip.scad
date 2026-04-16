@@ -1,37 +1,63 @@
 // Holder for 32mm PCV-U pipe and suction cup
 
-pipe_diameter      =  32.2; // internal pipe diameter - add .2
-pipe_gap_param     =  15;   // rig gap
-holder_wall        =   4;   // holder wall
-holder_width       =  10;   // holder width
-holder_resolution  = 300;   // $fn param for holder
-connector_heigh    =   9;   // connector width
-connector_diameter =   5.7; // connector_diameter
-suction_diameter   =   9;   // suction connector diameter
-suction_heigh      =   3;   // suction connector heigh
-suction_resolution = 100;   // $fn param for suction connector
+// Parameters
+pipe_diameter      = 32.2;  // internal pipe diameter (includes 0.2mm tolerance)
+pipe_gap_param     = 15;    // ring gap percentage
+holder_wall        = 4;     // holder wall thickness
+holder_width       = 10;    // holder width
+holder_resolution  = 300;   // $fn parameter for holder
+connector_heigh    = 2.2;   // connector height
+connector_diameter = 5.7;   // connector diameter
+suction_diameter   = 9;     // suction connector diameter
+suction_heigh      = 3;     // suction connector height
+suction_resolution = 100;   // $fn parameter for suction connector
+
+// Calculated values
+displacement = -pipe_diameter / 2;
+holder_inline = pipe_diameter;
 
 union() {
-    // ring
+    // Ring
     difference() {
         union() {
             difference() {
-                cylinder(h=holder_width, d=pipe_diameter + 2*holder_wall, $fn=holder_resolution);
+                cylinder(
+                    h = holder_width, 
+                    d = holder_inline + 2 * holder_wall, 
+                    $fn = holder_resolution
+                );
                 translate([0, 0, -1])
-                    cylinder(h=holder_width+2, d=pipe_diameter, $fn=holder_resolution);
+                    cylinder(
+                        h = holder_width + 2, 
+                        d = holder_inline, 
+                        $fn = holder_resolution
+                    );
             }
         }
-        // cut the ring
-        gap = holder_wall * pipe_diameter * ( pipe_gap_param / 100 );
-        translate([-gap/2,1,-1])
-            cube([gap, pipe_diameter+holder_wall, holder_width+2]);
+        // Cut the ring
+        gap = holder_wall * holder_inline * (pipe_gap_param / 100);
+        translate([-gap / 2, 1, -1])
+            cube([gap, holder_inline + holder_wall, holder_width + 2]);
     }
-    // suction connector
-    translate([0, -pipe_diameter/2, holder_width  /2 ])
+    
+    // Suction connector column
+    d1 = displacement;
+    translate([0, d1, holder_width / 2])
         rotate([90])
-        cylinder(h=connector_heigh,d=connector_diameter, $fn=suction_resolution);
-    translate([0,-pipe_diameter/2-holder_wall-2.2, holder_width  /2 ])
+        cylinder(
+            h = connector_heigh + holder_wall + 1, 
+            d = connector_diameter, 
+            $fn = suction_resolution
+        );
+    
+    // Suction connector
+    d2 = displacement - connector_heigh - holder_wall;
+    translate([0, d2, holder_width / 2])
         rotate([90])
-        cylinder(h=suction_heigh,d=suction_diameter, $fn=suction_resolution);
+        cylinder(
+            h = suction_heigh, 
+            d = suction_diameter, 
+            $fn = suction_resolution
+        );
 }
 
