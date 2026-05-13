@@ -105,7 +105,7 @@ module blades() {
                         cube([blade_length, blade_thick, blade_height]);
                 }
                 // shaft core
-                translate([0,0,-tube_wall]) cylinder(h = blade_height + 10, d = shaft_dia);
+                translate([0,0,-tube_wall]) cylinder(h = blade_height + 10, d = shaft_dia-.1);
             }
     }
 }
@@ -113,19 +113,22 @@ module blades() {
 
 module vortex_basin() {
     difference() {
-        color([1,0,0]) cylinder(h=basin_height, d=basin_dia);
-        translate([0,0,tube_wall]) cylinder(h=basin_height, d=basin_dia - tube_wall);
+        union() {
+            color([1,0,0]) difference() {
+                cylinder(h=basin_height, d=basin_dia);
+                translate([0,0,tube_wall]) cylinder(h=basin_height, d=basin_dia - tube_wall);
+            }
+            color([0,.5,.7]) difference() {
+                    cylinder(h=2*basin_dia,r=basin_dia/2+tube_wall+.2);
+                    translate([0,0,-1]) cylinder(h=2*basin_dia+2,r=basin_dia/2+.1);
+            }
+        }
         // Tangential inlet slot for tube
         translate([basin_dia/2 - tube_outer/2, -(tube_outer+tube_outer_size), tube_wall]) cube([tube_outer, tube_outer_size*tube_outer, 30]);
         // Central outlet hole
         translate([0,0,basin_height-10]) cylinder(h=150, d=25);
         translate([0,0,-10]) cylinder(h=basin_height, d=shaft_dia+.05);
     }
-    translate([0,0,basin_height*2/3] ) {
-        difference() {
-            cylinder(h=basin_dia,r=basin_dia/2+tube_wall);
-            translate([0,0,-1]) cylinder(h=basin_dia+2,r=basin_dia/2);
-        }
-    }
 }
 
+                                                                                        
